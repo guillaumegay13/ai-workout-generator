@@ -10,7 +10,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Workout generation endpoint not configured' }, { status: 500 });
     }
 
-    console.log("Sending request with payload:", JSON.stringify(payload, null, 2));
     const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -24,6 +23,5 @@ export async function POST(request: Request) {
     }
 
     const workout = await response.json()
-    console.log("Received response with workout:", JSON.stringify(workout, null, 2));
     return NextResponse.json(workout)
 }

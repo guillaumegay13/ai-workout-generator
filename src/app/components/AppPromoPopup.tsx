@@ -18,7 +18,6 @@ const AppPromoPopup: React.FC<AppPromoPopupProps> = ({ isOpen, onClose, iosAppSt
 
     const handleDownload = () => {
         const url = isIOS ? iosAppStoreUrl : androidPlayStoreUrl;
-        console.log('Download URL:', url); // Add this line for debugging
         if (url) {
             window.open(url, '_blank');
         } else {
