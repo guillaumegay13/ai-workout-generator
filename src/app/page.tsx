@@ -131,8 +131,8 @@ export default function Home() {
   };
 
   const handleDownloadApp = () => {
-    const iosAppStoreUrl = 'https://apps.apple.com/app/your-ios-app-id'; // Replace with your actual iOS App Store URL
-    const androidPlayStoreUrl = 'https://play.google.com/store/apps/details?id=your.android.package.name'; // Replace with your actual Google Play Store URL
+    const iosAppStoreUrl = process.env.IOS_APP_STORE_URL
+    const androidPlayStoreUrl = process.env.ANDROID_PLAY_STORE_URL
 
     window.open(isIOS ? iosAppStoreUrl : androidPlayStoreUrl, '_blank');
   };
