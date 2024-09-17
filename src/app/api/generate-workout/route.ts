@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
-import { GENERATE_WORKOUT_ENDPOINT } from '@/contants/api'
-
 export async function POST(request: Request) {
     const payload = await request.json()
 
-    const apiUrl = GENERATE_WORKOUT_ENDPOINT
+    const apiUrl = process.env.GENERATE_WORKOUT_ENDPOINT
+
+    if (!apiUrl) {
+        return NextResponse.json({ error: 'Workout generation endpoint not configured' }, { status: 500 });
+    }
 
     console.log("Sending request with payload:", JSON.stringify(payload, null, 2));
     const response = await fetch(apiUrl, {
