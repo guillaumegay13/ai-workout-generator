@@ -77,6 +77,7 @@ export default function Home() {
   const workoutRef = useRef<HTMLDivElement>(null);
   const [isPromoPopupOpen, setIsPromoPopupOpen] = React.useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [appStoreUrls, setAppStoreUrls] = useState({ ios: '', android: '' });
 
   useEffect(() => {
     if (workout && workoutRef.current) {
@@ -95,6 +96,23 @@ export default function Home() {
     // Check if the user is on an iOS device
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
   }, []);
+
+  useEffect(() => {
+    // Fetch the URLs from an API route
+    fetch('/api/app-store-urls')
+      .then(response => response.json())
+      .then(data => setAppStoreUrls(data))
+      .catch(error => console.error('Failed to fetch app store URLs:', error));
+  }, []);
+
+  const handleDownloadApp = () => {
+    const url = isIOS ? appStoreUrls.ios : appStoreUrls.android;
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      console.error('App store URL not available');
+    }
+  };
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
@@ -128,13 +146,6 @@ export default function Home() {
       setLoading(false);
       // Don't close the popup here, let the user close it manually
     }
-  };
-
-  const handleDownloadApp = () => {
-    const iosAppStoreUrl = process.env.IOS_APP_STORE_URL
-    const androidPlayStoreUrl = process.env.ANDROID_PLAY_STORE_URL
-
-    window.open(isIOS ? iosAppStoreUrl : androidPlayStoreUrl, '_blank');
   };
 
   return (
@@ -407,6 +418,8 @@ export default function Home() {
       <AppPromoPopup
         isOpen={isPromoPopupOpen}
         onClose={() => setIsPromoPopupOpen(false)}
+        iosAppStoreUrl={appStoreUrls.ios}
+        androidPlayStoreUrl={appStoreUrls.android}
       />
     </main>
   );

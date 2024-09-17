@@ -1,12 +1,30 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface AppPromoPopupProps {
     isOpen: boolean;
     onClose: () => void;
+    iosAppStoreUrl: string;
+    androidPlayStoreUrl: string;
 }
 
-const AppPromoPopup: React.FC<AppPromoPopupProps> = ({ isOpen, onClose }) => {
+const AppPromoPopup: React.FC<AppPromoPopupProps> = ({ isOpen, onClose, iosAppStoreUrl, androidPlayStoreUrl }) => {
+    const [isIOS, setIsIOS] = useState(false);
+
+    useEffect(() => {
+        setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
+    }, []);
+
     if (!isOpen) return null;
+
+    const handleDownload = () => {
+        const url = isIOS ? iosAppStoreUrl : androidPlayStoreUrl;
+        console.log('Download URL:', url); // Add this line for debugging
+        if (url) {
+            window.open(url, '_blank');
+        } else {
+            console.error('App store URL not available');
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -22,14 +40,12 @@ const AppPromoPopup: React.FC<AppPromoPopupProps> = ({ isOpen, onClose }) => {
                     >
                         Maybe Later
                     </button>
-                    <a
-                        href="#" // Replace with your app store link
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        onClick={handleDownload}
                         className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
                     >
                         Download Now
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
