@@ -78,6 +78,7 @@ export default function Home() {
   const [isPromoPopupOpen, setIsPromoPopupOpen] = React.useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [appStoreUrls, setAppStoreUrls] = useState({ ios: '', android: '' });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (workout && workoutRef.current) {
@@ -116,7 +117,8 @@ export default function Home() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    setIsPromoPopupOpen(true); // Open the popup as soon as generation starts
+    setIsGenerating(true);
+    setIsPromoPopupOpen(true);
 
     try {
       const apiPayload = {
@@ -144,7 +146,7 @@ export default function Home() {
       // Handle error (e.g., show error message to user)
     } finally {
       setLoading(false);
-      // Don't close the popup here, let the user close it manually
+      setIsGenerating(false);
     }
   };
 
@@ -152,10 +154,54 @@ export default function Home() {
     <main className="container mx-auto px-4 py-8 text-white">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold">AI Workout Generator</h1>
-        <a href="https://www.producthunt.com/posts/ai-workout-generator?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ai&#0045;workout&#0045;generator" target="_blank" rel="noopener noreferrer">
-          <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=490238&theme=dark" alt="AI Workout Generator - Free and fast AI tailored workout generator | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
-        </a>
+        <div className="flex items-center space-x-4">
+          <a href="https://x.com/GuillaumeGay_" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+          </a>
+          <a href="https://github.com/guillaumegay13/ai-workout-generator" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+          </a>
+          <a href="https://traincoach.app" target="_blank" rel="noopener noreferrer" className="text-white hover:text-gray-300">
+            <img src="/appicon.png" alt="TrainCoach App" width="24" height="24" className="rounded-md" />
+          </a>
+          <a href="https://www.producthunt.com/posts/ai-workout-generator?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ai&#0045;workout&#0045;generator" target="_blank" rel="noopener noreferrer">
+            <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=490238&theme=dark" alt="AI Workout Generator - Free and fast AI tailored workout generator | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+          </a>
+        </div>
       </div>
+
+      {/* Mobile app promo section with video */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 mb-8 shadow-lg flex items-center">
+        <div className="flex-1 pr-6">
+          <h2 className="text-2xl font-bold mb-4">Get Our Mobile App for a Better Workout Experience!</h2>
+          <p className="mb-4">
+            Take your workouts to the next level with our mobile app.
+          </p>
+          <button
+            onClick={handleDownloadApp}
+            className="px-6 py-3 text-lg font-medium text-indigo-600 bg-white rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Download Now
+          </button>
+        </div>
+        <div className="flex-1">
+          <video
+            className="w-full h-auto rounded-lg shadow-lg"
+            autoPlay
+            muted
+            loop
+            playsInline
+          >
+            <source src="/dynamic.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-6">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-white mb-2">First Name (optional)</label>
@@ -380,6 +426,41 @@ export default function Home() {
           {loading && <p className="text-xs mt-1 text-gray-300">It can take up to 30 seconds</p>}
         </button>
       </form>
+
+      {/* Add this new section for the generation process promo */}
+      {isGenerating && (
+        <div className="mt-8 bg-gray-800 rounded-lg p-6 shadow-lg animate-pulse">
+          <h2 className="text-2xl font-bold mb-4">Generating Your Perfect Workout...</h2>
+          <p className="mb-4">
+            While we craft your personalized workout plan, why not explore our mobile app?
+          </p>
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold">Mobile App Features:</h3>
+              <ul className="list-disc pl-5 mt-2">
+                <li>Access your plan from anywhere</li>
+                <li>Track your workouts on-the-go</li>
+                <li>Schedule your workouts in the calendar view</li>
+                <li>Validate sessions to increase your streak</li>
+                <li>Get reminders for your next workout</li>
+
+              </ul>
+            </div>
+          </div>
+          <button
+            onClick={handleDownloadApp}
+            className="px-6 py-3 text-lg font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Download Our App Now
+          </button>
+        </div>
+      )}
+
       {workout && (
         <div ref={workoutRef} className="mt-8">
           <h2 className="text-2xl font-bold mb-4">{workout.program.programName}</h2>
@@ -410,13 +491,23 @@ export default function Home() {
           )}
 
           {/* Add this at the end of the workout display */}
-          <div className="mt-8 text-center">
+          <div className="mt-8 text-center flex justify-center space-x-4">
             <button
               onClick={handleDownloadApp}
               className="px-6 py-3 text-lg font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Download Mobile App
             </button>
+
+            {/* Buy Me a Coffee button */}
+            <a
+              href="https://buymeacoffee.com/guillaumegay"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 text-lg font-medium text-white bg-yellow-500 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+            >
+              Buy Me a Coffee
+            </a>
           </div>
         </div>
       )}
