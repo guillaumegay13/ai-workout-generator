@@ -150,7 +150,12 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8 text-white">
-      <h1 className="text-3xl font-bold mb-4">AI Workout Generator</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">AI Workout Generator</h1>
+        <a href="https://www.producthunt.com/posts/ai-workout-generator?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-ai&#0045;workout&#0045;generator" target="_blank" rel="noopener noreferrer">
+          <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=490238&theme=dark" alt="AI Workout Generator - Free and fast AI tailored workout generator | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+        </a>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-6">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-white mb-2">First Name (optional)</label>
