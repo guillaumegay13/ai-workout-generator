@@ -17,8 +17,36 @@ const schema = z.object({
   heightUnit: z.enum(["cm", "ft"]).optional(),
   weight: z.union([z.number(), z.string()]).optional().transform((val) => (val === '' ? undefined : Number(val))),
   weightUnit: z.enum(["kg", "lbs"]).optional(),
-  goal: z.enum(["Build muscles", "Lose weight", "Be more tonic and athletic"], { errorMap: () => ({ message: "Please select a goal" }) }),
-  type: z.enum(["Bodyweight", "At the gym"], { errorMap: () => ({ message: "Please select a workout type" }) }),
+  goal: z.array(z.enum([
+    "Build muscles",
+    "Lose weight",
+    "Be more tonic and athletic",
+    "Improve mental health",
+    "Sleep better at night",
+    "Increase flexibility",
+    "Enhance cardiovascular health",
+    "Boost energy levels"
+  ])).min(1, { message: "Please select at least one fitness goal" }),
+  type: z.array(z.enum([
+    "Bodyweight",
+    "At the gym",
+    "Cardiovascular Workouts",
+    "Strength Training",
+    "Flexibility and Balance Workouts",
+    "High-Intensity Interval Training (HIIT)",
+    "Circuit Training",
+    "Functional Training"
+  ])).min(1, { message: "Please select at least one workout type" }),
+  equipment: z.array(z.enum([
+    "Barbells",
+    "Dumbbells",
+    "Kettlebells",
+    "Resistance bands",
+    "Cable machine",
+    "Treadmill",
+    "Stationary bike",
+    "Weight machines"
+  ])).optional(),
   frequency: z.enum(["2", "3", "4", "5", "6"], { errorMap: () => ({ message: "Please select a workout frequency" }) }),
   trainingDays: z.array(z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])).optional(),
   level: z.enum(["beginner", "intermediate", "advanced"], { errorMap: () => ({ message: "Please select a fitness level" }) }),
@@ -122,23 +150,25 @@ export default function Home() {
 
     try {
       const apiPayload = {
-        type: data.type.toLowerCase(),
+        type: data.type.map(t => t.toLowerCase()).join(','),
         gender: data.gender,
         level: data.level,
         frequency: parseInt(data.frequency),
         days: data.trainingDays && data.trainingDays.length > 0 ? data.trainingDays.join(',') : undefined,
-        goal: data.goal.toLowerCase().replace(/\s+/g, '_'),
-        height: data.height || undefined,
-        weight: data.weight || undefined,
-        age: data.age,
-        duration: data.duration || undefined,
+        goal: data.goal.map(g => g.toLowerCase().replace(/\s+/g, '_')).join(','),
+        height: data.height ? String(data.height) : undefined,
+        weight: data.weight ? String(data.weight) : undefined,
+        age: Number(data.age),
+        duration: data.duration ? Number(data.duration) : undefined,
         weight_unit: data.weightUnit || undefined,
         height_unit: data.heightUnit || undefined,
-        session_duration_minutes: data.sessionDuration || undefined,
+        session_duration_minutes: data.sessionDuration ? Number(data.sessionDuration) : undefined,
         firstname: data.firstName || undefined,
-        email: data.email
+        email: data.email,
+        equipment: data.equipment && data.equipment.length > 0 ? data.equipment.join(',') : undefined,
       };
 
+      console.log(JSON.stringify(apiPayload, null, 2));
       const result = await generateWorkout(apiPayload);
       setWorkout(result as WorkoutData);
     } catch (error) {
@@ -296,41 +326,87 @@ export default function Home() {
         </div>
 
         <div>
-          <label htmlFor="goal" className="block text-sm font-medium text-white mb-2">Fitness Goal *</label>
+          <label htmlFor="goal" className="block text-sm font-medium text-white mb-2">Fitness Goal(s) *</label>
           <Controller
             name="goal"
             control={control}
-            rules={{ required: "Fitness goal is required" }}
+            rules={{ required: "At least one fitness goal is required" }}
             render={({ field }) => (
               <TagSelect
-                options={["Build muscles", "Lose weight", "Be more tonic and athletic"]}
-                value={field.value}
+                options={[
+                  "Build muscles",
+                  "Lose weight",
+                  "Be more tonic and athletic",
+                  "Improve mental health",
+                  "Sleep better at night",
+                  "Increase flexibility",
+                  "Enhance cardiovascular health",
+                  "Boost energy levels"
+                ]}
+                value={field.value || []}
                 onChange={field.onChange}
                 error={errors.goal?.message}
+                multiple={true}
               />
             )}
           />
         </div>
 
         <div>
-          <label htmlFor="type" className="block text-sm font-medium text-white mb-2">Workout Type *</label>
+          <label htmlFor="type" className="block text-sm font-medium text-white mb-2">Workout Type(s) *</label>
           <Controller
             name="type"
             control={control}
-            rules={{ required: "Workout type is required" }}
+            rules={{ required: "At least one workout type is required" }}
             render={({ field }) => (
               <TagSelect
-                options={["Bodyweight", "At the gym"]}
-                value={field.value}
+                options={[
+                  "Bodyweight",
+                  "At the gym",
+                  "Cardiovascular Workouts",
+                  "Strength Training",
+                  "Flexibility and Balance Workouts",
+                  "High-Intensity Interval Training (HIIT)",
+                  "Circuit Training",
+                  "Functional Training"
+                ]}
+                value={field.value || []}
                 onChange={field.onChange}
                 error={errors.type?.message}
+                multiple={true}
               />
             )}
           />
         </div>
 
         <div>
-          <label htmlFor="frequency" className="block text-sm font-medium text-white mb-2">Workout Frequency (days per week) *</label>
+          <label htmlFor="equipment" className="block text-sm font-medium text-white mb-2">Available Equipment (optional)</label>
+          <Controller
+            name="equipment"
+            control={control}
+            render={({ field }) => (
+              <TagSelect
+                options={[
+                  "Barbells",
+                  "Dumbbells",
+                  "Kettlebells",
+                  "Resistance bands",
+                  "Cable machine",
+                  "Treadmill",
+                  "Stationary bike",
+                  "Weight machines"
+                ]}
+                value={field.value || []}
+                onChange={field.onChange}
+                error={errors.equipment?.message}
+                multiple={true}
+              />
+            )}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="frequency" className="block text-sm font-medium text-white mb-2">Workout Frequency (per week) *</label>
           <Controller
             name="frequency"
             control={control}
@@ -354,7 +430,7 @@ export default function Home() {
             render={({ field }) => (
               <TagSelect
                 options={["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]}
-                value={field.value || []} // Provide an empty array if field.value is undefined
+                value={field.value || []}
                 onChange={field.onChange}
                 error={errors.trainingDays?.message}
                 multiple={true}
@@ -465,10 +541,6 @@ export default function Home() {
         <div ref={workoutRef} className="mt-8">
           <h2 className="text-2xl font-bold mb-4">{workout.program.programName}</h2>
           <p className="mb-4">{workout.program.programDescription}</p>
-          <h3 className="text-xl font-semibold mb-2">Method Used:</h3>
-          <p className="mb-4">{workout.program.methodUsed}</p>
-          <h3 className="text-xl font-semibold mb-2">Scientific Evidence:</h3>
-          <p className="mb-4">{workout.program.scientificEvidence}</p>
 
           {workout.program.weeks.flatMap((week) =>
             week.sessions.map((session, sessionIndex) => (

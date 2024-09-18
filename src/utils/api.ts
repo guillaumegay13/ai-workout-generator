@@ -5,8 +5,8 @@ interface WorkoutParams {
     frequency: number;
     days?: string;
     goal: string;
-    height?: number;
-    weight?: number;
+    height?: string;
+    weight?: string;
     age: number;
     duration?: number;
     weight_unit?: string;
@@ -14,6 +14,7 @@ interface WorkoutParams {
     session_duration_minutes?: number;
     firstname?: string;
     email: string;
+    equipment?: string;
 }
 
 interface Exercise {
