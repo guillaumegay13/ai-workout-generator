@@ -53,8 +53,27 @@ interface WorkoutData {
     };
 }
 
+let cachedEndpoint: string | null = null;
+
+async function getEndpoint(): Promise<string> {
+    if (cachedEndpoint) return cachedEndpoint;
+
+    const response = await fetch('/api/workout-endpoint');
+    if (!response.ok) {
+        throw new Error('Failed to fetch workout endpoint');
+    }
+    const data = await response.json();
+    cachedEndpoint = data.endpoint;
+    if (!cachedEndpoint) {
+        throw new Error('Invalid endpoint received');
+    }
+    return cachedEndpoint;
+}
+
 export async function generateWorkout(params: WorkoutParams): Promise<WorkoutData> {
-    const response = await fetch('/api/generate-workout', {
+    const endpoint = await getEndpoint();
+
+    const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -63,7 +82,7 @@ export async function generateWorkout(params: WorkoutParams): Promise<WorkoutDat
     });
 
     if (!response.ok) {
-        throw new Error('Failed to generate workout');
+        throw new Error(`Failed to generate workout: ${response.status} ${response.statusText}`);
     }
 
     return response.json();

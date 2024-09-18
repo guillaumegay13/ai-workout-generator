@@ -52,11 +52,11 @@ const schema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
 });
 
-// Initialize the database
-initDatabase().catch(console.error);
-
 export async function POST(request: NextRequest) {
     try {
+        // Initialize the database
+        await initDatabase().catch(console.error);
+
         const body = await request.json();
 
         const validationResult = schema.safeParse(body);

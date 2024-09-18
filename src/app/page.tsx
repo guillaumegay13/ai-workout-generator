@@ -144,6 +144,7 @@ export default function Home() {
   };
 
   const onSubmit = async (data: FormData) => {
+    console.log('onSubmit function called with data:', data);
     setLoading(true);
     setIsGenerating(true);
     setIsPromoPopupOpen(true);
