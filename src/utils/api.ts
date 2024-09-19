@@ -1,3 +1,5 @@
+import { isRateLimited } from './rateLimit';
+
 interface WorkoutParams {
     type: string;
     gender: string;
@@ -53,25 +55,21 @@ interface WorkoutData {
     };
 }
 
-let cachedEndpoint: string | null = null;
-
-async function getEndpoint(): Promise<string> {
-    if (cachedEndpoint) return cachedEndpoint;
-
-    const response = await fetch('/api/workout-endpoint');
-    if (!response.ok) {
-        throw new Error('Failed to fetch workout endpoint');
-    }
-    const data = await response.json();
-    cachedEndpoint = data.endpoint;
-    if (!cachedEndpoint) {
-        throw new Error('Invalid endpoint received');
-    }
-    return cachedEndpoint;
-}
-
 export async function generateWorkout(params: WorkoutParams): Promise<WorkoutData> {
-    const endpoint = await getEndpoint();
+    const endpoint = process.env.GENERATE_WORKOUT_ENDPOINT;
+
+    if (!endpoint) {
+        throw new Error('Workout generation endpoint is not configured.');
+    }
+
+    // Check rate limit before making the API call
+    const isLimited = await isRateLimited(params.email, 3);
+    if (isLimited) {
+        throw new Error('Rate limit exceeded. Please try again later.');
+    }
+
+    console.log(isLimited)
+
 
     const response = await fetch(endpoint, {
         method: 'POST',

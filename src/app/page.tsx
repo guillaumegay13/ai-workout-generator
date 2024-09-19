@@ -169,12 +169,18 @@ export default function Home() {
         equipment: data.equipment && data.equipment.length > 0 ? data.equipment.join(',') : undefined,
       };
 
-      console.log(JSON.stringify(apiPayload, null, 2));
       const result = await generateWorkout(apiPayload);
       setWorkout(result as WorkoutData);
     } catch (error) {
       console.error('Failed to generate workout:', error);
-      // Handle error (e.g., show error message to user)
+      // Handle rate limit error specifically
+      if (error instanceof Error && error.message.includes('Rate limit exceeded')) {
+        // Show a user-friendly message about rate limiting
+        alert("You've reached the daily limit for workout generation.Please try again tomorrow.");
+      } else {
+        // Handle other errors
+        alert('An error occurred while generating your workout. Please try again later.');
+      }
     } finally {
       setLoading(false);
       setIsGenerating(false);

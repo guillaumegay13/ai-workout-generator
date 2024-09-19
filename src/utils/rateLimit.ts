@@ -1,23 +1,14 @@
-import { sql } from './database';
+import { redis } from './redis';
 
 export async function isRateLimited(email: string, limit: number): Promise<boolean> {
-    const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0];
+  const key = `rate_limit:${email}:${today}`;
 
-    const result = await sql`
-    INSERT INTO rate_limits (email, date, count)
-    VALUES (${email}, ${today}, 1)
-    ON CONFLICT (email, date) DO UPDATE
-    SET count = rate_limits.count + 1
-    RETURNING count
-  `;
+  const count = await redis.incr(key);
 
-    return result[0].count > limit;
-}
+  if (count === 1) {
+    await redis.expire(key, 86400); // Set expiry for 24 hours
+  }
 
-export async function cleanupOldEntries() {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    await sql`DELETE FROM rate_limits WHERE date < ${yesterdayStr}`;
+  return count > limit;
 }
