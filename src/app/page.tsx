@@ -103,7 +103,7 @@ export default function Home() {
   const [workout, setWorkout] = React.useState<WorkoutData | null>(null);
   const [loading, setLoading] = React.useState(false);
   const workoutRef = useRef<HTMLDivElement>(null);
-  const [isPromoPopupOpen, setIsPromoPopupOpen] = React.useState(false);
+  const [isPromoPopupOpen, setIsPromoPopupOpen] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [appStoreUrls, setAppStoreUrls] = useState({ ios: '', android: '' });
   const [isGenerating, setIsGenerating] = useState(false);
@@ -147,7 +147,6 @@ export default function Home() {
     console.log('onSubmit function called with data:', data);
     setLoading(true);
     setIsGenerating(true);
-    setIsPromoPopupOpen(true);
 
     try {
       const apiPayload = {
@@ -171,6 +170,7 @@ export default function Home() {
 
       const result = await generateWorkout(apiPayload);
       setWorkout(result as WorkoutData);
+      setIsPromoPopupOpen(true);
     } catch (error) {
       console.error('Failed to generate workout:', error);
       // Handle rate limit error specifically
@@ -211,33 +211,33 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mobile app promo section with video */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 mb-8 shadow-lg flex items-center">
-        <div className="flex-1 pr-6">
-          <h2 className="text-2xl font-bold mb-4">Get Our Mobile App for a Better Workout Experience!</h2>
-          <p className="mb-4">
-            Take your workouts to the next level with our mobile app.
-          </p>
-          <button
-            onClick={handleDownloadApp}
-            className="px-6 py-3 text-lg font-medium text-indigo-600 bg-white rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Download Now
-          </button>
-        </div>
-        <div className="flex-1">
-          <video
-            className="w-full h-auto rounded-lg shadow-lg"
-            autoPlay
-            muted
-            loop
-            playsInline
-          >
-            <source src="/dynamic.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      </div>
+      {/* App promotion banner */}
+      {/* <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 mb-8 shadow-lg flex items-center">
+              <div className="flex-1 pr-6">
+                <h2 className="text-2xl font-bold mb-4">Get Our Mobile App for a Better Workout Experience!</h2>
+                <p className="mb-4">
+                  Take your workouts to the next level with our mobile app.
+                </p>
+                <button
+                  onClick={handleDownloadApp}
+                  className="px-6 py-3 text-lg font-medium text-indigo-600 bg-white rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Download Now
+                </button>
+              </div>
+              <div className="flex-1">
+                <video
+                  className="w-full h-auto rounded-lg shadow-lg"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                >
+                  <source src="/dynamic.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div> */}
 
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4 space-y-6">
         <div>
@@ -509,38 +509,69 @@ export default function Home() {
           {loading && <p className="text-xs mt-1 text-gray-300">It can take up to 30 seconds</p>}
         </button>
       </form>
-
       {/* Add this new section for the generation process promo */}
       {isGenerating && (
         <div className="mt-8 bg-gray-800 rounded-lg p-6 shadow-lg animate-pulse">
-          <h2 className="text-2xl font-bold mb-4">Generating Your Perfect Workout...</h2>
-          <p className="mb-4">
-            While we craft your personalized workout plan, why not explore our mobile app?
-          </p>
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <div className="md:w-1/2">
+              <h2 className="text-2xl font-bold mb-4">Generating Your Perfect Workout...</h2>
+              <p className="mb-4">
+                Why not explore our mobile app?
+              </p>
+              <div className="flex items-center space-x-4 mb-6">
+                <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <ul className="list-disc pl-5 py-2">
+                    <li className="py-1">Access your trainings from everywhere</li>
+                    <li className="py-1">Schedule your sessions in the calendar</li>
+                    <li className="py-1">Increase your streak to stay motivated</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-8 flex flex-wrap gap-2">
+                <a
+                  href="https://traincoach.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 inline-block"
+                >
+                  Visit Website
+                </a>
+                <a
+                  href={appStoreUrls.ios}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 inline-block"
+                >
+                  Download iOS
+                </a>
+                <a
+                  href={appStoreUrls.android}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 inline-block"
+                >
+                  Download Android
+                </a>
+              </div>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold">Mobile App Features:</h3>
-              <ul className="list-disc pl-5 mt-2">
-                <li>Access your plan from anywhere</li>
-                <li>Track your workouts on-the-go</li>
-                <li>Schedule your workouts in the calendar view</li>
-                <li>Validate sessions to increase your streak</li>
-                <li>Get reminders for your next workout</li>
-
-              </ul>
+            <div className="md:w-1/2">
+              <video
+                className="w-full h-auto rounded-2xl shadow-lg"
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src="/dynamic.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
-          <button
-            onClick={handleDownloadApp}
-            className="px-6 py-3 text-lg font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Download Our App Now
-          </button>
         </div>
       )}
 
@@ -590,6 +621,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Move AppPromoPopup here, after the workout display */}
       <AppPromoPopup
         isOpen={isPromoPopupOpen}
         onClose={() => setIsPromoPopupOpen(false)}
