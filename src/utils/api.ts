@@ -1,7 +1,7 @@
 import { RateLimitStatus, checkRateLimit } from './rateLimit';
 
-const emailLimit = 10;
-const globalLimit = 1;
+const emailLimit = 3; // 3 emails per day
+const globalLimit = 1000; // 1000 requests per day
 
 interface WorkoutParams {
     type: string;
