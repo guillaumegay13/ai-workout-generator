@@ -1,14 +1,32 @@
 import { redis } from './redis';
 
-export async function isRateLimited(email: string, limit: number): Promise<boolean> {
+export enum RateLimitStatus {
+  OK = 'OK',
+  EMAIL_LIMIT_EXCEEDED = 'EMAIL_LIMIT_EXCEEDED',
+  GLOBAL_LIMIT_EXCEEDED = 'GLOBAL_LIMIT_EXCEEDED'
+}
+
+export async function checkRateLimit(email: string, emailLimit: number, globalLimit: number): Promise<RateLimitStatus> {
   const today = new Date().toISOString().split('T')[0];
-  const key = `rate_limit:${email}:${today}`;
+  const emailKey = `rate_limit:${email}:${today}`;
+  const globalKey = `rate_limit:global:${today}`;
 
-  const count = await redis.incr(key);
+  // Use multi to execute commands atomically
+  const multi = redis.multi();
+  multi.incr(emailKey);
+  multi.incr(globalKey);
+  multi.expire(emailKey, 86400);
+  multi.expire(globalKey, 86400);
 
-  if (count === 1) {
-    await redis.expire(key, 86400); // Set expiry for 24 hours
+  const [emailCount, globalCount] = await multi.exec() as [number, number, null, null];
+
+  if (emailCount > emailLimit) {
+    return RateLimitStatus.EMAIL_LIMIT_EXCEEDED;
   }
 
-  return count > limit;
+  if (globalCount > globalLimit) {
+    return RateLimitStatus.GLOBAL_LIMIT_EXCEEDED;
+  }
+
+  return RateLimitStatus.OK;
 }

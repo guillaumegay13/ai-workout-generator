@@ -50,7 +50,6 @@ const schema = z.object({
   frequency: z.enum(["2", "3", "4", "5", "6"], { errorMap: () => ({ message: "Please select a workout frequency" }) }),
   trainingDays: z.array(z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])).optional(),
   level: z.enum(["beginner", "intermediate", "advanced"], { errorMap: () => ({ message: "Please select a fitness level" }) }),
-  duration: z.union([z.number(), z.string()]).optional().transform((val) => (val === '' ? undefined : Number(val))),
   sessionDuration: z.union([z.number(), z.string()]).optional().transform((val) => (val === '' ? undefined : Number(val))),
   email: z.string().email({ message: "Invalid email address" }),
 });
@@ -149,6 +148,20 @@ export default function Home() {
     setIsGenerating(true);
 
     try {
+      // Store the email
+      const emailResponse = await fetch('/api/store-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: data.email }),
+      });
+
+      if (!emailResponse.ok) {
+        throw new Error('Failed to store email');
+      }
+
+      // Rest of your existing code for generating the workout
       const apiPayload = {
         type: data.type.map(t => t.toLowerCase()).join(','),
         gender: data.gender,
@@ -159,7 +172,6 @@ export default function Home() {
         height: data.height ? String(data.height) : undefined,
         weight: data.weight ? String(data.weight) : undefined,
         age: Number(data.age),
-        duration: data.duration ? Number(data.duration) : undefined,
         weight_unit: data.weightUnit || undefined,
         height_unit: data.heightUnit || undefined,
         session_duration_minutes: data.sessionDuration ? Number(data.sessionDuration) : undefined,
@@ -172,14 +184,20 @@ export default function Home() {
       setWorkout(result as WorkoutData);
       setIsPromoPopupOpen(true);
     } catch (error) {
-      console.error('Failed to generate workout:', error);
+      console.error('Failed to generate workout or store email:', error);
       // Handle rate limit error specifically
-      if (error instanceof Error && error.message.includes('Rate limit exceeded')) {
-        // Show a user-friendly message about rate limiting
-        alert("You've reached the daily limit for workout generation.Please try again tomorrow.");
+      if (error instanceof Error) {
+        if (error.message.includes('You have exceeded your daily request limit')) {
+          alert("You've reached the daily limit for workout generation. Please try again tomorrow.");
+        } else if (error.message.includes('Our system is currently experiencing high demand')) {
+          alert("Our system is currently experiencing high demand, please retry tomorrow.");
+        } else {
+          // Handle other errors
+          alert('An error occurred while generating your workout. Please try again later.');
+        }
       } else {
-        // Handle other errors
-        alert('An error occurred while generating your workout. Please try again later.');
+        // Handle non-Error objects
+        alert('An unexpected error occurred. Please try again later.');
       }
     } finally {
       setLoading(false);
@@ -461,19 +479,6 @@ export default function Home() {
               />
             )}
           />
-        </div>
-
-        <div>
-          <label htmlFor="duration" className="block text-sm font-medium text-white mb-2">Program Duration (weeks) (optional)</label>
-          <input
-            id="duration"
-            type="number"
-            {...register('duration', {
-              setValueAs: (v: string) => v === "" ? undefined : parseFloat(v)
-            })}
-            className="mt-1 block w-full px-3 py-2 bg-gray-600 text-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          />
-          {errors.duration && <p className="mt-2 text-sm text-red-600">{errors.duration.message}</p>}
         </div>
 
         <div>

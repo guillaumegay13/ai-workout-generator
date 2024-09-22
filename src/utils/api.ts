@@ -1,4 +1,7 @@
-import { isRateLimited } from './rateLimit';
+import { RateLimitStatus, checkRateLimit } from './rateLimit';
+
+const emailLimit = 10;
+const globalLimit = 1;
 
 interface WorkoutParams {
     type: string;
@@ -62,13 +65,17 @@ export async function generateWorkout(params: WorkoutParams): Promise<WorkoutDat
         throw new Error('Workout generation endpoint is not configured.');
     }
 
-    // Check rate limit before making the API call
-    const isLimited = await isRateLimited(params.email, 3);
-    if (isLimited) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-    }
+    const status = await checkRateLimit(params.email, emailLimit, globalLimit);
 
-    console.log(isLimited)
+    switch (status) {
+        case RateLimitStatus.OK:
+            // Proceed with the request
+            break;
+        case RateLimitStatus.EMAIL_LIMIT_EXCEEDED:
+            throw new Error('You have exceeded your daily request limit. Please try again tomorrow.');
+        case RateLimitStatus.GLOBAL_LIMIT_EXCEEDED:
+            throw new Error('Our system is currently experiencing high demand. Please try again later.');
+    }
 
 
     const response = await fetch(endpoint, {
