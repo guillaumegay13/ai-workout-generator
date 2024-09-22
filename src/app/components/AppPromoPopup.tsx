@@ -15,7 +15,7 @@ const AppPromoPopup: React.FC<AppPromoPopupProps> = ({ isOpen, onClose, iosAppSt
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-semibold">Download Our Mobile App</h3>
-                    <p className="mt-1">Access your workouts on the go to upgrade your experience!</p>
+                    <p className="mt-1">Access your workouts on the go and upgrade your experience!</p>
                 </div>
                 <div className="flex space-x-2">
                     <a href={iosAppStoreUrl} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-blue-600 rounded-md">iOS</a>
